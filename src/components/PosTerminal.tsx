@@ -13,7 +13,7 @@ type NdefReader = { scan: (o?: { signal?: AbortSignal }) => Promise<void>; onrea
 
 export type PosInit = { merchant?: string; amount?: number; autoTap?: boolean };
 
-export function PosTerminal({ open, onOpenChange, init }: { open: boolean; onOpenChange: (v: boolean) => void; init?: PosInit }) {
+export function PosTerminal({ open, onOpenChange, init }: { open: boolean; onOpenChange: (v: boolean) => void; init?: PosInit | undefined }) {
   const cards = useStore((s) => s.userCards);
   const [merchant, setMerchant] = useState("Carrefour");
   const [amount, setAmount] = useState(240);
@@ -52,6 +52,7 @@ export function PosTerminal({ open, onOpenChange, init }: { open: boolean; onOpe
     if (init?.merchant) setMerchant(init.merchant);
     if (init?.amount && init.amount > 0) setAmount(init.amount);
     if (init?.autoTap) { const t = window.setTimeout(() => tapRef.current(), 400); return () => clearTimeout(t); }
+    return undefined;
   }, [open, init]);
   useEffect(() => () => { timers.current.forEach(clearTimeout); nfcAbort.current?.abort(); }, []);
 

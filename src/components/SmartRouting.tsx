@@ -41,7 +41,7 @@ export function SmartRoutingRules({ cards }: { cards: MyCard[] }) {
           <div key={r.merchant} className="flex flex-wrap items-center gap-2 text-sm">
             <span className="w-24 font-medium">{r.merchant}</span>
             <span className="text-muted-foreground">→</span>
-            <Select value={cards.some((c) => c.id === r.cardId) ? r.cardId : undefined} onValueChange={(v) => change(r.merchant, v)}>
+            <Select value={cards.some((c) => c.id === r.cardId) ? r.cardId : ""} onValueChange={(v) => change(r.merchant, v)}>
               <SelectTrigger className="h-8 w-60"><SelectValue placeholder="Alege cardul" /></SelectTrigger>
               <SelectContent>
                 {cards.map((c) => <SelectItem key={c.id} value={c.id}>{c.bank} {c.name} (•••• {c.last4 ?? "0000"})</SelectItem>)}
