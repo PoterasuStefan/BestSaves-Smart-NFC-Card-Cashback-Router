@@ -13,6 +13,7 @@ import { SoldConturi } from "@/components/SoldConturi";
 import { ConecteazaBanca } from "@/components/ConecteazaBanca";
 import { parseStatementText, pdfToText, toCSV } from "@/lib/pdfStatement";
 import { MyCards } from "@/components/MyCards";
+import { POS_EVENT } from "@/lib/nfc-pos";
 import { DemoStoreNotifier } from "@/components/DemoStoreNotifier";
 import { EMPTY_SETTINGS, loadOptimizationState, saveOptimizationState, type OptimizationState } from "@/lib/optimization-state";
 
@@ -52,6 +53,7 @@ function Dashboard() {
   useEffect(() => { setOptimization(loadOptimizationState()); }, []);
   const fileRef = useRef<HTMLInputElement>(null);
   useEffect(() => { setTranz(loadStatement()); setLoaded(true); }, []);
+  useEffect(() => { const r = () => setTranz(loadStatement()); window.addEventListener(POS_EVENT, r); return () => window.removeEventListener(POS_EVENT, r); }, []);
 
   const scan = async (text: string) => {
     setErr(null); setScanning(true);

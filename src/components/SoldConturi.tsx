@@ -2,12 +2,18 @@ import { useState } from "react";
 import { ChevronLeft, Landmark, PiggyBank, ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { formatRON } from "@/lib/utils";
 import type { Tranzactie } from "@/lib/statement";
-import { CONTURI_DEMO, fluxLuna, lunaCurenta, totalTip, type Cont } from "@/lib/accounts";
+import { CONTURI_DEMO as BAZA, fluxLuna, lunaCurenta, totalTip, type Cont } from "@/lib/accounts";
+import { loadPayments, spentFromBank } from "@/lib/nfc-pos";
+import { useStore } from "@/store/useStore";
 
 type Vedere = null | "curent" | "economii";
 
 export function SoldConturi({ tranz, deschis, onToggle }: { tranz: Tranzactie[]; deschis: boolean; onToggle: (v: boolean) => void }) {
   const [vedere, setVedere] = useState<Vedere>(null);
+  const cards = useStore((s) => s.userCards);
+  const plati = loadPayments();
+  const bankOf = (id: string) => cards.find((c) => c.id === id)?.bank;
+  const CONTURI_DEMO = BAZA.map((c) => (c.tip === "curent" ? { ...c, sold: c.sold - spentFromBank(plati, bankOf, c.banca) } : c));
   const curent = totalTip(CONTURI_DEMO, "curent");
   const economii = totalTip(CONTURI_DEMO, "economii");
   const luna = lunaCurenta(tranz);

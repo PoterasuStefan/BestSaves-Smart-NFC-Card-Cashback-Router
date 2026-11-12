@@ -10,6 +10,10 @@ import { useStorePresence } from "@/hooks/use-store-presence";
 import { bootstrapCards, useStore } from "@/store/useStore";
 import { HIGHLIGHT_KEY } from "@/lib/simulate-store";
 import { CardDetailDialog } from "@/components/CardDetailDialog";
+import { PosTerminal, type PosInit } from "@/components/PosTerminal";
+import { SmartCardFace, SmartRoutingRules } from "@/components/SmartRouting";
+import { POS_EVENT, type PosPayment } from "@/lib/nfc-pos";
+import { formatRON } from "@/lib/utils";
 
 const WALLET: Record<string, string> = { ing: "wallet-ing", "ing-alt": "wallet-ing-alt", bcr: "wallet-bcr", "bcr-alt": "wallet-bcr-alt", bt: "wallet-bt", "bt-alt": "wallet-bt-alt", raiffeisen: "wallet-raiffeisen" };
 const LOC_KEY = "bestsaves.locationOn";
@@ -60,6 +64,21 @@ export function MyCards() {
   const popup = useCardPopup();
   const [glowId, setGlowId] = useState<string | null>(null);
   const [api, setApi] = useState<CarouselApi>();
+  const [posOpen, setPosOpen] = useState(false);
+  const [posInit, setPosInit] = useState<PosInit>();
+  const [lastPay, setLastPay] = useState<PosPayment | null>(null);
+  useEffect(() => {
+    const onPay = (e: Event) => setLastPay((e as CustomEvent<PosPayment>).detail);
+    window.addEventListener(POS_EVENT, onPay);
+    const q = new URLSearchParams(window.location.search);
+    if (q.get("nfc_tap") === "true") {
+      setPosInit({ merchant: q.get("merchant") ?? "Carrefour", amount: Number(q.get("amount")) || 240, autoTap: true });
+      setPosOpen(true);
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+    return () => window.removeEventListener(POS_EVENT, onPay);
+  }, []);
+  useEffect(() => { if (!lastPay) return; const t = setTimeout(() => setLastPay(null), 60000); return () => clearTimeout(t); }, [lastPay]);
   useEffect(() => {
     const read = () => { const id = sessionStorage.getItem(HIGHLIGHT_KEY); if (id) { setGlowId(id); sessionStorage.removeItem(HIGHLIGHT_KEY); } };
     read(); window.addEventListener("bestsaves:highlight", read);
@@ -88,12 +107,14 @@ export function MyCards() {
           <label className="flex items-center gap-2 text-xs text-muted-foreground">
             <Switch checked={locOn} onCheckedChange={(v) => { setLocOn(v); localStorage.setItem(LOC_KEY, v ? "1" : "0"); }} /> Recunoaște magazinul
           </label>
+          <Button size="sm" onClick={() => { setPosInit(undefined); setPosOpen(true); }} className="bg-gradient-to-r from-primary to-chart-2 text-primary-foreground">💳 Terminal POS (Tap NFC)</Button>
           <AddCardDialog />
         </div>
       </div>
       {cards.length === 0 ? <p className="text-sm text-muted-foreground">Adaugă primul tău card.</p> : (
         <Carousel opts={{ align: "start", dragFree: true }} className="px-10" setApi={(a) => { popup.attachApi(a); setApi(a); }}>
           <CarouselContent className="py-6 pl-6">
+            <CarouselItem className="basis-auto"><SmartCardFace /></CarouselItem>
             {shown.map((c) => {
               const hi = best?.card.id === c.id;
               const glow = glowId === c.id;
@@ -113,7 +134,8 @@ export function MyCards() {
                       {hi ? <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">Cel mai bun aici</span>
                         : <Button variant="ghost" size="icon-sm" aria-label={`Șterge ${c.bank} ${c.name}`} onClick={(e) => { e.stopPropagation(); removeCard(c.id); }} className="opacity-0 transition-opacity group-hover:opacity-80 focus:opacity-100"><Trash2 className="size-3.5" /></Button>}
                     </div>
-                    <div className="h-6 w-9 rounded-md bg-wallet-foreground/30" />
+                    {lastPay?.cardId === c.id ? <span className="self-start rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">Ultima plată rutată aici (+{formatRON(lastPay.cashback)})</span>
+                      : <div className="h-6 w-9 rounded-md bg-wallet-foreground/30" />}
                     <div className="flex items-end justify-between text-xs">
                       <span className="opacity-90">{c.name}</span>
                       <span className="font-mono tracking-wider opacity-90">•••• {c.last4 ?? "0000"}</span>
@@ -127,6 +149,8 @@ export function MyCards() {
           <CarouselNext className="right-0" />
         </Carousel>
       )}
+      {cards.length > 0 && <SmartRoutingRules cards={cards} />}
+      <PosTerminal open={posOpen} onOpenChange={setPosOpen} init={posInit} />
       {detail && <CardDetailDialog key={detail.id} card={detail} onClose={() => { setDetail(null); popup.setActiveId(null); }} />}
       {!detail && active && popup.box && typeof document !== "undefined" && createPortal(
         <div role="tooltip"

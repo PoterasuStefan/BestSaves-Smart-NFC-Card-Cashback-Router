@@ -252,3 +252,17 @@
 .group:hover .fx-shine::after { animation: fx-shine 900ms ease-out; }
 .fx-burst { animation: fx-burst 800ms ease-out forwards; }
 @media (prefers-reduced-motion: reduce) { .fx-float, .fx-glow, .fx-spin, .fx-burst, .group:hover .fx-shine::after { animation: none !important; } }
+
+@utility wallet-smart {
+  background:
+    linear-gradient(115deg, transparent 30%, oklch(0.85 0.12 190 / 0.25) 45%, oklch(0.85 0.15 150 / 0.2) 55%, transparent 70%),
+    linear-gradient(135deg, oklch(0.32 0.02 250), oklch(0.18 0.02 250) 60%, oklch(0.26 0.03 220));
+  background-size: 250% 100%, 100% 100%;
+  animation: smart-holo 6s ease-in-out infinite;
+  color: oklch(0.96 0.01 250);
+  border: 1px solid oklch(0.8 0.05 220 / 0.35);
+}
+@keyframes smart-holo { 50% { background-position: 100% 0, 0 0; } }
+@keyframes nfc-wave { 0% { transform: scale(0.6); opacity: 0.8; } 100% { transform: scale(1.6); opacity: 0; } }
+.nfc-wave { animation: nfc-wave 1.8s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) { .wallet-smart, .nfc-wave { animation: none; } }
