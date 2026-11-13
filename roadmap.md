@@ -1,4 +1,7 @@
 # Tasks
+- [x] Add phone fullscreen Auchan/Carrefour POS simulators and same-account device notification wiring; verify demo routing, local notifications and NFC fallback.
+- [ ] Verify authenticated cross-device notifications — no account matches requesting user; real NFC tag and native OS notifications require a physical phone.
+- [x] Enable persisted simplified mode by default, remove screenshot copy and hide Abonamente while enabled.
 - [x] Audit bank data, migrations, wallet perks and verification claims; distinguish simulated and evidence-backed offers without redesign.
 - [x] Test offer integrity and verify the offer/detail and wallet demo flows.
 - [x] Add and verify the validated new-card form, masked-CVV flip preview and safe metadata persistence.

@@ -16,6 +16,7 @@ import { MyCards } from "@/components/MyCards";
 import { POS_EVENT } from "@/lib/nfc-pos";
 import { DemoStoreNotifier } from "@/components/DemoStoreNotifier";
 import { EMPTY_SETTINGS, loadOptimizationState, saveOptimizationState, type OptimizationState } from "@/lib/optimization-state";
+import { usePreferences } from "@/store/usePreferences";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -41,6 +42,7 @@ const DEMO_PERSONAS = [
 ] as const;
 
 function Dashboard() {
+  const simplified = usePreferences((s) => s.simplified);
   const navigate = useNavigate();
   const [tranz, setTranz] = useState<Tranzactie[] | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -206,7 +208,7 @@ function Dashboard() {
           </section>
         </div>
 
-        <Abonamente tranz={tranz} />
+        {!simplified && <Abonamente tranz={tranz} />}
 
         <DemoStoreNotifier />
 

@@ -19,6 +19,9 @@
  */
 
 @theme inline {
+  --color-pos-brand: var(--pos-brand);
+  --color-pos-ink: var(--pos-ink);
+  --color-pos-paper: var(--pos-paper);
   --color-wallet-foreground: oklch(0.99 0 0);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -266,3 +269,9 @@
 @keyframes nfc-wave { 0% { transform: scale(0.6); opacity: 0.8; } 100% { transform: scale(1.6); opacity: 0; } }
 .nfc-wave { animation: nfc-wave 1.8s ease-out infinite; }
 @media (prefers-reduced-motion: reduce) { .wallet-smart, .nfc-wave { animation: none; } }
+
+/* Retailer terminals keep their own high-contrast semantic palette in both themes. */
+.retailer-pos { --pos-paper: oklch(0.99 0.005 95); --pos-ink: oklch(0.24 0.025 260); background: var(--pos-paper); color: var(--pos-ink); }
+.pos-auchan { --pos-brand: oklch(0.55 0.22 25); }
+.pos-carrefour { --pos-brand: oklch(0.42 0.17 257); }
+.retailer-pos:fullscreen { overflow-y: auto; }

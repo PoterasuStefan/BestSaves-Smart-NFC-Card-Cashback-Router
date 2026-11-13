@@ -95,6 +95,42 @@ export type Database = {
         }
         Relationships: []
       }
+      pos_demo_events: {
+        Row: {
+          amount: number
+          card_bank: string
+          card_id: string
+          created_at: string
+          device_id: string
+          id: string
+          merchant: string
+          percent: number
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          card_bank: string
+          card_id: string
+          created_at?: string
+          device_id: string
+          id?: string
+          merchant: string
+          percent: number
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          card_bank?: string
+          card_id?: string
+          created_at?: string
+          device_id?: string
+          id?: string
+          merchant?: string
+          percent?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

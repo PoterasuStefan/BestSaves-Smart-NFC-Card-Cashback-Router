@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { ArrowRight, PiggyBank, Sparkles, Users, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { profileEntryPath, useProfile } from "@/lib/profile";
+import { usePreferences } from "@/store/usePreferences";
 
 export const Route = createFileRoute("/acasa")({
   head: () => ({
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/acasa")({
 });
 
 function Acasa() {
+  const simplified = usePreferences((s) => s.simplified);
   const { profil, ready } = useProfile();
   const navigate = useNavigate();
   useEffect(() => {
@@ -42,9 +44,9 @@ function Acasa() {
             <Button variant="savings" size="lg" className="h-14 flex-1 gap-3 text-base" asChild>
               <Link to="/"><Sparkles />Salvează bani<ArrowRight /></Link>
             </Button>
-            <Button variant="outline" size="lg" className="h-14 flex-1 gap-3 border-savings bg-background text-base text-savings hover:bg-savings/10 hover:text-savings" asChild>
+            {!simplified && <Button variant="outline" size="lg" className="h-14 flex-1 gap-3 border-savings bg-background text-base text-savings hover:bg-savings/10 hover:text-savings" asChild>
               <Link to="/extra"><PiggyBank />Abonamentele tale</Link>
-            </Button>
+            </Button>}
           </div>
           <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground"><ShieldCheck className="size-4 text-savings" />Datele tale rămân în browser. Fără cont.</p>
           <p className="mt-4 text-xs leading-relaxed text-muted-foreground">Cifre ilustrative, nu rezultate reale ale utilizatorilor.</p>

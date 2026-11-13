@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AlertTriangle, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { loadStatement, type Tranzactie } from "@/lib/statement";
 import { loadOprite } from "@/lib/subscriptions";
 import { subscriptionAlert } from "@/lib/spending-alert";
 import { formatRON } from "@/lib/utils";
+import { usePreferences } from "@/store/usePreferences";
 
 export const Route = createFileRoute("/extra")({
   head: () => ({ meta: [
@@ -23,6 +24,13 @@ export const Route = createFileRoute("/extra")({
 });
 
 function Extra() {
+  const simplified = usePreferences((s) => s.simplified);
+  const [preferencesReady, setPreferencesReady] = useState(false);
+  useEffect(() => {
+    const unsubscribe = usePreferences.persist.onFinishHydration(() => setPreferencesReady(true));
+    setPreferencesReady(usePreferences.persist.hasHydrated());
+    return unsubscribe;
+  }, []);
   const [tranz, setTranz] = useState<Tranzactie[]>([]);
   const [stopped, setStopped] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -30,6 +38,8 @@ function Extra() {
   const alert = subscriptionAlert(tranz, stopped);
   const example = tranz.length === 0;
   const swaps = example ? EXAMPLE_SWAPS : detecteazaSwaps(tranz);
+  if (!preferencesReady) return null;
+  if (simplified) return <Navigate to="/" replace />;
   return <div className="h-full overflow-y-auto"><div className="mx-auto max-w-3xl space-y-6 px-5 py-8 md:px-10">
     <div><h1 className="font-display text-3xl font-semibold">Abonamente</h1><p className="mt-2 text-sm text-muted-foreground">Abonamente și plăți recurente găsite în extrasul tău.</p></div>
     {loaded && <section className="space-y-4"><div><h2 className="font-display text-xl font-semibold">Alternative open-source</h2><p className="mt-1 text-sm text-muted-foreground">{example ? "Exemple ilustrative. Încarcă extrasul pentru alternativele tale." : "Alternative pentru software-ul plătit din extrasul tău."}</p></div>{swaps.length > 0 ? <SwipeSwaps swaps={swaps} example={example} /> : <p className="text-sm text-muted-foreground">Nu am găsit abonamente cu alternative open-source potrivite.</p>}</section>}

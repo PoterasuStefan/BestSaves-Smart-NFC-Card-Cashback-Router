@@ -16,6 +16,9 @@ import { AppSidebar, Logo } from "@/components/AppSidebar";
 import { SelectionExplanation } from "@/components/SelectionExplanation";
 import { ProfileGate } from "@/components/ProfileGate";
 import { AuthProvider } from "@/hooks/use-auth";
+import { usePreferences } from "@/store/usePreferences";
+import { RetailerPos } from "@/components/RetailerPos";
+import { PosNotificationBridge } from "@/components/PosNotificationBridge";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -122,6 +125,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => { void usePreferences.persist.rehydrate(); }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -133,6 +137,8 @@ function RootComponent() {
       <Toaster />
       <ProfileGate />
       <SelectionExplanation />
+      <RetailerPos />
+      <PosNotificationBridge />
       </AuthProvider>
     </QueryClientProvider>
   );

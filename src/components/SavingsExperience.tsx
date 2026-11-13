@@ -15,9 +15,11 @@ import { pickOffers } from "@/lib/ai-picker.functions";
 import { useProfile } from "@/lib/profile";
 import { statusLabel } from "@/lib/offer-integrity";
 import { SavingsGraphic } from "@/components/SavingsGraphic";
+import { usePreferences } from "@/store/usePreferences";
 
 const lei = (value: number) => value.toLocaleString("ro-RO", { maximumFractionDigits: 0 });
 export function SavingsExperience() {
+  const simplified = usePreferences((s) => s.simplified);
   const { profil } = useProfile();
   const { transactions, state, setState, today, example, offers: baseOffers, bankLoading } = useSavings();
   const [started, setStarted] = useState(false);
@@ -46,7 +48,7 @@ export function SavingsExperience() {
   const openOffer = (offer: SavingsOffer) => window.open(offer.url, "_blank", "noopener,noreferrer");
   return <div className="h-full overflow-y-auto">
     <header className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 md:px-10">
-      <div className="text-sm font-medium">Bani în plus. Nu sfaturi în plus.</div>
+      <div className="text-sm font-medium">{simplified ? "Economisește" : "Bani în plus. Nu sfaturi în plus."}</div>
       <Button variant="ghost" size="sm" asChild><Link to="/dashboard"><ShieldCheck />Seiful meu <ArrowUpRight /></Link></Button>
     </header>
     <div className="mx-auto max-w-5xl px-5 md:px-10">
@@ -58,7 +60,7 @@ export function SavingsExperience() {
             <div className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1"><span className="font-display text-6xl font-semibold tabular-nums text-success-foreground md:text-7xl">{lei(total)}</span><span className="text-xl text-success-foreground">lei / an</span></div>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">{example ? "Calcul fictiv pe oferte simulate și cheltuieli ilustrative. Nu reprezintă oferte reale ale băncilor sau economii personale." : total > 0 ? `Economii potențiale din datele tale. ${offers.filter((o) => o.annualRon > 0).length} pași cu impact calculabil, cei mai eficienți primii.${hasDemoNumbers ? ` Include ${lei(demoTotal)} lei din oferte SIMULATE (demo), calculate pe cheltuielile tale — nu economii reale.` : ""}` : "Nu există economii bancare confirmabile din catalogul actual. Ofertele simulate sau fără dovezi nu contribuie la cifra ta."}</p>
             <Button variant="savings" size="lg" className="mt-6 h-14 w-full max-w-sm gap-4 text-base" onClick={() => { setStarted(true); setSkipped([]); }}>Salvează bani <ArrowRight /></Button>
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground"><span>Fără cont</span><span>Fără plăți automate</span><span>Statutul fiecărei oferte este explicit</span></div>
+            {!simplified && <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground"><span>Fără cont</span><span>Fără plăți automate</span><span>Statutul fiecărei oferte este explicit</span></div>}
           </div>
           <SavingsGraphic className="absolute inset-y-0 right-0 hidden w-[42%] max-w-[460px] lg:block" />
           {example ? <details className="mt-6 max-w-xl text-xs text-muted-foreground"><summary className="cursor-pointer">Cum ajunge exemplul la {lei(total)} lei?</summary><p className="mt-2 leading-relaxed">Scenariu fictiv: cheltuieli lunare ilustrative și procentele din ofertele marcate DEMO. Calculul presupune cost anual zero și rambursare integrală. Nu sunt oferte reale, tarife actuale sau datele tale.</p><Button variant="link" size="sm" className="mt-2 h-auto p-0" asChild><Link to="/dashboard">Încarcă extrasul pentru cifra ta <ArrowRight /></Link></Button></details> : <p className="mt-5 text-xs text-muted-foreground">Estimare pe 12 luni, nu economie garantată. Costurile declarate sunt scăzute din cashback; eligibilitatea se verifică la furnizor.{hasDemoNumbers ? ` Ofertele marcate DEMO sunt simulări pe cheltuielile tale (${lei(demoTotal)} lei/an), nu oferte reale ale băncilor.` : ""}</p>}
